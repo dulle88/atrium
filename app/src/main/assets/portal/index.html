@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Atrium</title>
+<style>
+  :root { color-scheme: dark; --bg:#0b1020; --card:#141b33; --line:#26305a; --ink:#e8ebf7; --soft:#9aa3c4;
+          --accent:#f0a45d; --good:#5fcf9b; --bad:#ef6b6b; --blue:#6aa9ff; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 -apple-system, system-ui, "Segoe UI", sans-serif;
+         padding: 16px max(16px, env(safe-area-inset-right)) 48px max(16px, env(safe-area-inset-left)); }
+  main { max-width: 520px; margin: 0 auto; display: grid; gap: 14px; }
+  h1 { font-size: 21px; margin: 2px 0 0; }
+  h2 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin: 0 0 10px; font-weight: 600; }
+  section, .now { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .now { display: grid; gap: 4px; border-color: #36427a; }
+  .now .k { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); font-weight: 600; }
+  .now .v { font-size: 17px; font-weight: 600; }
+  .now .s { color: var(--soft); font-size: 14px; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; background: var(--good); }
+  .dot.n { background: var(--accent); }
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+  .tabs button { all: unset; text-align: center; padding: 10px 4px; border-radius: 9px; font-weight: 600; font-size: 15px; color: var(--soft); cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--accent); color: #1b1206; }
+  .tabs button:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .soft { color: var(--soft); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+  .ph { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: #000; aspect-ratio: 4 / 3; }
+  .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ph .n { position: absolute; left: 6px; top: 6px; background: rgba(8,12,28,.78); border-radius: 6px; font-size: 12px; font-weight: 700; padding: 1px 7px; }
+  .ph .tools { position: absolute; right: 4px; bottom: 4px; display: flex; gap: 4px; }
+  .ph .tools button { all: unset; width: 32px; height: 32px; display: grid; place-items: center; background: rgba(8,12,28,.82); border-radius: 8px; cursor: pointer; font-size: 15px; }
+  .ph .tools button:disabled { opacity: .35; cursor: default; }
+  .ph .tools .del { color: var(--bad); }
+  .btn { all: unset; box-sizing: border-box; display: block; text-align: center; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-weight: 600; cursor: pointer; }
+  .btn.primary { background: var(--accent); color: #1b1206; border-color: var(--accent); }
+  .btn.danger { color: var(--bad); }
+  .btn:disabled, .chip:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  .row .btn { flex: 1; }
+  .chip { all: unset; padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; cursor: pointer; background: var(--bg); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: #1b1206; border-color: var(--accent); font-weight: 600; }
+  textarea, input, select { width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 9px; padding: 10px; font: inherit; }
+  textarea { min-height: 84px; resize: vertical; }
+  label { display: block; color: var(--soft); font-size: 13px; margin: 12px 0 5px; }
+  .notice { display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--bg); margin-top: 10px; }
+  .notice .t { font-weight: 600; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .notice .m { color: var(--soft); font-size: 13.5px; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 6px; padding: 2px 8px; background: rgba(240,164,93,.16); color: var(--accent); margin-right: 6px; }
+  .badge.sch { background: rgba(106,169,255,.16); color: var(--blue); }
+  .badge.exp { background: rgba(239,107,107,.14); color: var(--bad); }
+  .thumbs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .thumbs .ph { width: 64px; aspect-ratio: 1; }
+  .thumbs .ph button { all: unset; position: absolute; right: 2px; top: 2px; width: 22px; height: 22px; display: grid; place-items: center; background: rgba(8,12,28,.82); border-radius: 6px; color: var(--bad); font-size: 12px; cursor: pointer; }
+  .empty { text-align: center; color: var(--soft); padding: 18px 8px; border: 1px dashed var(--line); border-radius: 12px; margin-top: 10px; font-size: 14px; }
+  .contact { display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--bg); margin-top: 10px; }
+  .contact .fmt { color: var(--accent); font-weight: 700; font-size: 15px; letter-spacing: .02em; min-height: 1.3em; overflow-wrap: anywhere; }
+  .contact .ctl { display: flex; gap: 6px; }
+  .contact .ctl button { all: unset; width: 40px; height: 38px; display: grid; place-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+  .contact .ctl button:disabled { opacity: .35; cursor: default; }
+  .contact .ctl .del { color: var(--bad); margin-left: auto; }
+  .contact label { margin: 0 0 3px; }
+  #toast { position: fixed; left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); max-width: 520px; margin: 0 auto;
+           background: #1b2548; border: 1px solid #36427a; border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  #toast.err { border-color: var(--bad); }
+  input[type=file] { display: none; }
+  /* iOS Safari gives date/time inputs an intrinsic width that ignores width:100% and pushes them past the card. */
+  main, section { min-width: 0; }
+  input[type=datetime-local] { display: block; min-width: 0; max-width: 100%; min-height: 44px; -webkit-appearance: none; appearance: none; text-align: left; }
+  input[type=datetime-local]::-webkit-date-and-time-value { text-align: left; min-width: 0; }
+  #app:not([hidden]) { display: grid; gap: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Atrium</h1>
+
+  <section id="gate" hidden>
+    <h2>PIN</h2>
+    <p class="soft">Enter the 4-digit PIN shown on the TV (press OK on the remote while the clock is selected).</p>
+    <input id="pin" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="PIN">
+    <div class="row"><button class="btn primary" id="pinGo" type="button">Continue</button></div>
+  </section>
+
+  <div id="app" hidden>
+    <div class="now" id="now" aria-live="polite"><div class="k">On the TV now</div><div class="v">Loading…</div></div>
+    <div class="tabs" role="tablist" aria-label="Sections">
+      <button type="button" role="tab" aria-selected="true" data-tab="slides">Slideshow</button>
+      <button type="button" role="tab" aria-selected="false" data-tab="notices">Notices</button>
+      <button type="button" role="tab" aria-selected="false" data-tab="phones">Phones</button>
+      <button type="button" role="tab" aria-selected="false" data-tab="clock">Clock</button>
+    </div>
+
+    <div id="slides">
+      <section>
+        <h2>Permanent slideshow</h2>
+        <p class="soft">These photos play in a loop on the TV until you change them. Notices (next tab) temporarily take over, then it comes back to this.</p>
+        <label for="dur">Each photo stays for</label>
+        <select id="dur">
+          <option value="5">5 seconds</option><option value="10">10 seconds</option><option value="15">15 seconds</option>
+          <option value="30">30 seconds</option><option value="60">1 minute</option>
+        </select>
+        <div class="grid" id="grid"></div>
+        <div id="gridEmpty" class="empty" hidden>No photos yet. The TV shows a plain sky until you add some.</div>
+        <div class="row"><button class="btn primary" id="addPhotos" type="button">Add photos</button></div>
+        <input id="slideFiles" type="file" accept="image/jpeg,image/png" multiple aria-label="Choose photos for the slideshow">
+        <p class="soft" style="margin-top:8px">Pick several at once. JPEG and PNG, up to 15 MB each. Use ▲ ▼ to change the order.</p>
+      </section>
+    </div>
+
+    <div id="notices" hidden>
+      <section>
+        <h2>Notices</h2>
+        <p class="soft">A notice takes over the big area for a while: a message, photos, or both. When its time is up it disappears by itself and the slideshow comes back.</p>
+        <div id="nlist"></div>
+        <div id="nEmpty" class="empty" hidden>No notices. The TV is showing the permanent slideshow.</div>
+      </section>
+      <section style="margin-top:14px">
+        <h2>New notice</h2>
+        <label for="ntext">Message (optional)</label>
+        <textarea id="ntext" maxlength="2000" placeholder="Lift ne radi danas. Hvala na strpljenju."></textarea>
+        <label>Photos (optional)</label>
+        <div class="thumbs" id="nthumbs"></div>
+        <div class="row"><button class="btn" id="nAddPhoto" type="button">Add photos to this notice</button></div>
+        <input id="noticeFiles" type="file" accept="image/jpeg,image/png" multiple aria-label="Choose photos for the notice">
+        <label>Start</label>
+        <div class="row" id="startChips" role="group" aria-label="Start">
+          <button type="button" class="chip" data-s="now" aria-pressed="true">Now</button>
+          <button type="button" class="chip" data-s="later" aria-pressed="false">Later…</button>
+        </div>
+        <div id="fromWrap" hidden>
+          <label for="from">Starts (TV time)</label>
+          <input id="from" type="datetime-local">
+        </div>
+        <label>Show until</label>
+        <div class="row" id="untilChips" role="group" aria-label="Show until">
+          <button type="button" class="chip" data-h="1" aria-pressed="false">1 hour</button>
+          <button type="button" class="chip" data-h="6" aria-pressed="false">6 hours</button>
+          <button type="button" class="chip" data-h="end" aria-pressed="true">End of today</button>
+          <button type="button" class="chip" data-h="24" aria-pressed="false">1 day</button>
+          <button type="button" class="chip" data-h="168" aria-pressed="false">7 days</button>
+        </div>
+        <label for="until">…or pick exactly (TV time)</label>
+        <input id="until" type="datetime-local">
+        <div class="row"><button class="btn primary" id="publish" type="button">Show on TV</button></div>
+        <p class="soft" style="margin-top:8px">Usually you will have one notice at a time. If several are active together they play one after another.</p>
+      </section>
+    </div>
+
+    <div id="phones" hidden>
+      <section>
+        <h2>Important phones</h2>
+        <p class="soft">Shown on the TV beside the calendar. Numbers are formatted automatically: type <b>0641234567</b>, it shows as <b>064/123-4567</b>. Up to 8 contacts; the TV shows 4 at a time and takes turns when there are more.</p>
+        <div id="plist"></div>
+        <div id="pEmpty" class="empty" hidden>No contacts. The TV shows only the calendar.</div>
+        <div class="row"><button class="btn primary" id="addContact" type="button">Add contact</button></div>
+      </section>
+    </div>
+
+    <div id="clock" hidden>
+      <section>
+        <h2>Clock</h2>
+        <p class="soft" id="clockInfo"></p>
+        <div class="row"><button class="btn primary" id="syncPhone" type="button">Set TV time from this phone</button></div>
+        <label for="manual">Or choose a time (TV time)</label>
+        <input id="manual" type="datetime-local">
+        <div class="row"><button class="btn" id="setManual" type="button">Set this time</button></div>
+      </section>
+    </div>
+  </div>
+</main>
+<div id="toast" role="status" hidden></div>
+
+<script>
+'use strict';
+// All user data reaches the page through textContent only; innerHTML is never used with it.
+const $ = id => document.getElementById(id);
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+let pin = store.get('lobbyPin') || '';
+let tvOffsetMs = 0;
+let status = null;
+let pendingPhotos = [];   // {file, url} for the notice being written
+const tvNow = () => Date.now() + tvOffsetMs;
+const HOUR = 3600000, MAX_NOTICE_PHOTOS = 10;
+
+function el(tag, attrs, ...children) {
+  const e = document.createElement(tag);
+  for (const k in attrs || {}) {
+    if (k === 'class') e.className = attrs[k];
+    else if (k === 'text') e.textContent = attrs[k];
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]);
+    else if (attrs[k] === true) e.setAttribute(k, '');
+    else if (attrs[k] !== false && attrs[k] != null) e.setAttribute(k, attrs[k]);
+  }
+  children.forEach(c => { if (c != null) e.append(c); });
+  return e;
+}
+
+function toast(msg, isErr, sticky) {
+  const t = $('toast');
+  t.textContent = msg; t.className = isErr ? 'err' : ''; t.hidden = false;
+  clearTimeout(toast.h);
+  if (!sticky) toast.h = setTimeout(() => { t.hidden = true; }, 3500);
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch('/api' + path, { ...opts, headers: { 'X-Pin': pin, ...(opts.headers || {}) } });
+  const body = await res.json().catch(() => ({}));
+  if (res.status === 401) { pin = ''; store.del('lobbyPin'); showGate(); throw new Error('Wrong PIN'); }
+  if (!res.ok) throw new Error(body.error || res.statusText || 'Request failed');
+  return body;
+}
+const postJson = (path, data) => api(path, { method: 'POST', headers: { 'Content-Type': 'application/json; charset=utf-8' }, body: JSON.stringify(data) });
+
+/** Disables [btn] while [fn] runs, so a request is never sent twice. */
+async function busy(btn, fn) {
+  if (btn.disabled) return;
+  btn.disabled = true;
+  try { await fn(); } finally { btn.disabled = false; }
+}
+
+function showGate() { $('gate').hidden = false; $('app').hidden = true; }
+function showApp() { $('gate').hidden = true; $('app').hidden = false; }
+
+// --- Wall time in the TV's time zone (filled in by the TV when it serves this page) ---
+const TV_ZONE = '{{TIME_ZONE}}';
+const fmt = ms => new Intl.DateTimeFormat('en-GB', { timeZone: TV_ZONE, weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(ms));
+const fmtLong = ms => new Intl.DateTimeFormat('en-GB', { timeZone: TV_ZONE, dateStyle: 'medium', timeStyle: 'short' }).format(new Date(ms));
+const zoneFmt = new Intl.DateTimeFormat('en-GB', { timeZone: TV_ZONE, hourCycle: 'h23',
+  year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+function zoneParts(ms) {
+  const o = {};
+  zoneFmt.formatToParts(new Date(ms)).forEach(p => { o[p.type] = p.value; });
+  return o;
+}
+function zoneOffsetMs(ms) {
+  const o = zoneParts(ms);
+  return Date.UTC(+o.year, +o.month - 1, +o.day, +o.hour, +o.minute, +o.second) - Math.floor(ms / 1000) * 1000;
+}
+function zoneInputToMs(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value || '');
+  if (!m) return NaN;
+  const wall = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+  let t = wall - zoneOffsetMs(wall);
+  t = wall - zoneOffsetMs(t);
+  return t;
+}
+function msToZoneInput(ms) {
+  const o = zoneParts(ms);
+  return o.year + '-' + o.month + '-' + o.day + 'T' + o.hour + ':' + o.minute;
+}
+/** 23:59 TV time on the day of [ms]. */
+function endOfZoneDay(ms) {
+  const o = zoneParts(ms);
+  return zoneInputToMs(o.year + '-' + o.month + '-' + o.day + 'T23:59');
+}
+function left(ms) {
+  const m = Math.round((ms - tvNow()) / 60000);
+  if (m <= 0) return 'expired';
+  if (m < 90) return 'in ' + m + ' min';
+  if (m < 2880) return 'in ' + Math.round(m / 60) + ' h';
+  return 'in ' + Math.round(m / 1440) + ' days';
+}
+const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
+const secondsLabel = s => s === 60 ? '1 minute' : s + ' seconds';
+
+// --- Thumbnails: <img> cannot send the PIN header, so fetch them as blobs ---
+const thumbUrls = new Map();   // photo id -> Promise<object URL>
+function thumbImg(id, alt) {
+  const img = el('img', { alt: alt || 'Photo' });
+  if (!thumbUrls.has(id)) {
+    thumbUrls.set(id, fetch('/api/photo/' + encodeURIComponent(id) + '?thumb=1', { headers: { 'X-Pin': pin } })
+      .then(r => { if (!r.ok) throw new Error(); return r.blob(); })
+      .then(b => URL.createObjectURL(b))
+      .catch(() => { thumbUrls.delete(id); return null; }));
+  }
+  thumbUrls.get(id).then(url => { if (url) img.src = url; });
+  return img;
+}
+function forgetThumbs(keep) {
+  for (const [id, p] of thumbUrls) {
+    if (!keep.has(id)) { thumbUrls.delete(id); p.then(u => { if (u) URL.revokeObjectURL(u); }); }
+  }
+}
+
+// --- Rendering ---
+function renderNow() {
+  const n = $('now'), s = status, photos = s.slideshow.photos.length;
+  const active = s.notices.filter(x => x.state === 'active');
+  n.replaceChildren(el('div', { class: 'k', text: 'On the TV now' }));
+  if (s.tv.mode === 'notice') {
+    n.append(el('div', { class: 'v' }, el('span', { class: 'dot n' }), active.length > 1 ? active.length + ' notices' : 'Notice'));
+    n.append(el('div', { class: 's', text: 'Until ' + fmt(s.tv.untilMs) + ' (' + left(s.tv.untilMs) + '), then back to the slideshow of ' + plural(photos, 'photo') + '.' }));
+  } else {
+    n.append(el('div', { class: 'v' }, el('span', { class: 'dot' }), 'Slideshow'));
+    n.append(el('div', { class: 's', text: (photos ? plural(photos, 'photo') + ', ' + secondsLabel(s.slideshow.seconds) + ' each, in a loop.' : 'No photos yet.') +
+      (s.tv.nextFromMs ? ' Next notice starts ' + fmt(s.tv.nextFromMs) + '.' : '') }));
+  }
+}
+
+function renderGrid() {
+  const list = status.slideshow.photos, ids = list.map(p => p.id);
+  $('dur').value = String(status.slideshow.seconds);
+  $('grid').replaceChildren(...list.map((p, i) => el('div', { class: 'ph' },
+    thumbImg(p.id, p.filename),
+    el('span', { class: 'n', text: String(i + 1) }),
+    el('div', { class: 'tools' },
+      el('button', { type: 'button', 'aria-label': 'Move earlier', disabled: i === 0, text: '▲', onclick: e => move(e.currentTarget, ids, i, -1) }),
+      el('button', { type: 'button', 'aria-label': 'Move later', disabled: i === list.length - 1, text: '▼', onclick: e => move(e.currentTarget, ids, i, 1) }),
+      el('button', { type: 'button', class: 'del', 'aria-label': 'Delete photo', text: '✕', onclick: e => deletePhoto(e.currentTarget, p.id) })
+    ))));
+  $('gridEmpty').hidden = list.length > 0;
+}
+
+function renderNotices() {
+  const list = status.notices.slice().sort((a, b) => a.fromMs - b.fromMs);
+  $('nlist').replaceChildren(...list.map(n => {
+    const ex = n.state === 'expired', sc = n.state === 'scheduled';
+    const meta = (sc ? 'starts ' + fmt(n.fromMs) + ' · ' : '') + 'until ' + fmt(n.untilMs) + (ex || sc ? '' : ' · ' + left(n.untilMs));
+    return el('div', { class: 'notice' },
+      el('div', null, el('span', { class: 'badge' + (ex ? ' exp' : sc ? ' sch' : ''), text: ex ? 'Expired' : sc ? 'Scheduled' : 'Active' }), el('span', { class: 'm', text: meta })),
+      n.text ? el('div', { class: 't', text: '“' + n.text + '”' }) : null,
+      n.photos.length ? el('div', { class: 'thumbs' }, ...n.photos.map(p => el('div', { class: 'ph' }, thumbImg(p.id, p.filename)))) : null,
+      el('button', { type: 'button', class: 'btn danger', text: 'Remove now', onclick: e => removeNotice(e.currentTarget, n.id) }));
+  }));
+  $('nEmpty').hidden = list.length > 0;
+}
+
+function renderPending() {
+  $('nthumbs').replaceChildren(...pendingPhotos.map((p, i) => el('div', { class: 'ph' },
+    el('img', { src: p.url, alt: p.file.name }),
+    el('button', { type: 'button', 'aria-label': 'Remove photo', text: '✕', onclick: () => {
+      URL.revokeObjectURL(p.url); pendingPhotos.splice(i, 1); renderPending();
+    } }))));
+  $('nAddPhoto').textContent = pendingPhotos.length ? 'Add more photos (' + pendingPhotos.length + ' of ' + MAX_NOTICE_PHOTOS + ')' : 'Add photos to this notice';
+}
+
+function render() {
+  renderNow(); renderGrid(); renderNotices(); syncPhones();
+  $('clockInfo').textContent = 'TV time: ' + fmtLong(status.nowMs) + (status.sunrise ? ' · Sunrise ' + status.sunrise + ' · Sunset ' + status.sunset : '');
+  const keep = new Set(status.slideshow.photos.map(p => p.id));
+  status.notices.forEach(n => n.photos.forEach(p => keep.add(p.id)));
+  forgetThumbs(keep);
+}
+
+async function refresh() {
+  const s = await api('/status');
+  tvOffsetMs = s.nowMs - Date.now();
+  status = s;
+  showApp();
+  render();
+  if (!$('until').value) applyUntilChip();
+}
+
+// --- Tabs ---
+document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {
+  ['slides', 'notices', 'phones', 'clock'].forEach(k => { $(k).hidden = k !== b.dataset.tab; });
+  document.querySelectorAll('[data-tab]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+}));
+
+// --- PIN ---
+$('pinGo').addEventListener('click', () => busy($('pinGo'), async () => {
+  pin = $('pin').value.trim();
+  try { await refresh(); store.set('lobbyPin', pin); } catch (e) { toast(e.message, true); }
+}));
+
+// --- Slideshow ---
+async function move(btn, ids, i, dir) {
+  const order = ids.slice(), j = i + dir;
+  [order[i], order[j]] = [order[j], order[i]];
+  await busy(btn, async () => {
+    try { await postJson('/slideshow/order', { ids: order }); await refresh(); } catch (e) { toast(e.message, true); }
+  });
+}
+async function deletePhoto(btn, id) {
+  await busy(btn, async () => {
+    try { await api('/photos/' + encodeURIComponent(id), { method: 'DELETE' }); toast('Photo removed from the slideshow'); await refresh(); }
+    catch (e) { toast(e.message, true); }
+  });
+}
+$('dur').addEventListener('change', () => busy($('dur'), async () => {
+  const seconds = Number($('dur').value);
+  try { await postJson('/slideshow/seconds', { seconds }); toast('Saved: each photo stays ' + secondsLabel(seconds)); await refresh(); }
+  catch (e) { toast(e.message, true); if (status) $('dur').value = String(status.slideshow.seconds); }
+}));
+
+/** Shrinks a photo to at most 1920 px on the long side as a JPEG; returns the original if that fails or does not help. */
+function downscale(file) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(file), img = new Image();
+    const done = out => { URL.revokeObjectURL(url); resolve(out); };
+    img.onerror = () => done(file);
+    img.onload = () => {
+      try {
+        const w = img.naturalWidth, h = img.naturalHeight, scale = Math.min(1, 1920 / Math.max(w, h));
+        if (scale === 1 && file.size < 1.5e6) return done(file);
+        const c = document.createElement('canvas');
+        c.width = Math.round(w * scale); c.height = Math.round(h * scale);
+        const g = c.getContext('2d');
+        g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
+        g.drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(b => {
+          if (!b || b.size >= file.size) return done(file);
+          done(new File([b], file.name.replace(/\.[^.]*$/, '') + '.jpg', { type: 'image/jpeg' }));
+        }, 'image/jpeg', 0.85);
+      } catch (e) { done(file); }
+    };
+    img.src = url;
+  });
+}
+
+async function uploadOne(path, file) {
+  const small = await downscale(file);
+  const form = new FormData(); form.append('photo', small, small.name);
+  return api(path, { method: 'POST', body: form });
+}
+
+$('addPhotos').addEventListener('click', () => $('slideFiles').click());
+$('slideFiles').addEventListener('change', () => busy($('addPhotos'), async () => {
+  const files = [...$('slideFiles').files];
+  $('slideFiles').value = '';
+  if (!files.length) return;
+  let done = 0;
+  try {
+    for (const f of files) {
+      toast('Uploading ' + (done + 1) + ' of ' + files.length + '…', false, true);
+      await uploadOne('/photos', f);
+      done++;
+    }
+    toast(plural(done, 'photo') + ' added to the slideshow');
+  } catch (e) {
+    toast(e.message + ' (' + done + ' of ' + files.length + ' uploaded)', true);
+  }
+  try { await refresh(); } catch (e) {}
+}));
+
+// --- New notice ---
+$('nAddPhoto').addEventListener('click', () => $('noticeFiles').click());
+$('noticeFiles').addEventListener('change', () => {
+  const files = [...$('noticeFiles').files];
+  $('noticeFiles').value = '';
+  const room = MAX_NOTICE_PHOTOS - pendingPhotos.length;
+  if (files.length > room) toast('A notice can have at most ' + MAX_NOTICE_PHOTOS + ' photos', true);
+  files.slice(0, Math.max(0, room)).forEach(file => pendingPhotos.push({ file, url: URL.createObjectURL(file) }));
+  renderPending();
+});
+
+const isLater = () => document.querySelector('#startChips [aria-pressed=true]').dataset.s === 'later';
+const startMs = () => isLater() ? zoneInputToMs($('from').value) : tvNow();
+function press(group, chip) { group.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === chip))); }
+
+/** Fills the end time from the pressed preset, counted from the start on the TV clock. */
+function applyUntilChip() {
+  const chip = document.querySelector('#untilChips [aria-pressed=true]');
+  if (!chip) return;
+  const base = isLater() && !Number.isNaN(startMs()) ? startMs() : tvNow();
+  let until;
+  if (chip.dataset.h === 'end') {
+    until = endOfZoneDay(base);
+    if (until <= base) until = endOfZoneDay(base + 24 * HOUR);
+  } else {
+    until = base + Number(chip.dataset.h) * HOUR;
+  }
+  $('until').value = msToZoneInput(until);
+}
+$('startChips').querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+  press($('startChips'), c);
+  $('fromWrap').hidden = c.dataset.s !== 'later';
+  if (c.dataset.s === 'later' && !$('from').value) $('from').value = msToZoneInput(Math.ceil((tvNow() + HOUR) / HOUR) * HOUR);
+  applyUntilChip();
+}));
+$('untilChips').querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { press($('untilChips'), c); applyUntilChip(); }));
+$('until').addEventListener('input', () => press($('untilChips'), null));
+$('from').addEventListener('change', applyUntilChip);
+
+$('publish').addEventListener('click', () => busy($('publish'), async () => {
+  const text = $('ntext').value.trim();
+  if (!text && !pendingPhotos.length) return toast('Add a message or at least one photo first', true);
+  const until = zoneInputToMs($('until').value);
+  const later = isLater();
+  const from = later ? zoneInputToMs($('from').value) : null;
+  if (Number.isNaN(until) || (later && Number.isNaN(from))) return toast('Choose a date and time', true);
+  if (until <= tvNow()) return toast('That end time has already passed', true);
+  if (until <= (later ? from : tvNow())) return toast('The end time must be after the start', true);
+  let id = null, done = 0;
+  try {
+    id = (await postJson('/notices', { text, fromMs: from, untilMs: until })).id;
+    for (const p of pendingPhotos) {
+      toast('Uploading ' + (done + 1) + ' of ' + pendingPhotos.length + '…', false, true);
+      await uploadOne('/notices/' + encodeURIComponent(id) + '/photos', p.file);
+      done++;
+    }
+    await api('/notices/' + encodeURIComponent(id) + '/publish', { method: 'POST' });
+  } catch (e) {
+    if (id) { try { await api('/notices/' + encodeURIComponent(id), { method: 'DELETE' }); } catch (e2) {} }
+    const photos = pendingPhotos.length ? ' (' + done + ' of ' + pendingPhotos.length + ' photos uploaded)' : '';
+    return toast(e.message + photos + '. The notice was not shown.', true);
+  }
+  $('ntext').value = '';
+  pendingPhotos.forEach(p => URL.revokeObjectURL(p.url)); pendingPhotos = []; renderPending();
+  toast(later && from > tvNow() ? 'Scheduled: starts ' + fmt(from) : 'Notice is on the TV until ' + fmt(until));
+  try { await refresh(); } catch (e) {}
+  applyUntilChip();
+}));
+
+async function removeNotice(btn, id) {
+  await busy(btn, async () => {
+    try { await api('/notices/' + encodeURIComponent(id), { method: 'DELETE' }); toast('Notice removed.'); await refresh(); }
+    catch (e) { toast(e.message, true); }
+  });
+}
+
+// --- Phones ---
+// The list is edited here and saved whole, debounced while typing and at once on change, reorder or delete.
+// The status refresh only replaces it when nothing is unsaved and no field in it has focus.
+const MAX_CONTACTS = 8;
+let phones = [];           // [{name, number}] as shown on this page
+let phonesDirty = false;   // edits not yet saved
+let phonesSaving = false;
+let phonesEdit = 0;        // bumps on every edit, to tell whether a save covered the latest one
+let phonesTimer = 0;
+
+/** Same rules as PhoneFormat.serbian on the TV: 9 or 10 digits starting with 0 become 064/123-4567; anything else stays as typed. */
+function fmtPhone(raw) {
+  const s = String(raw).trim();
+  if (s[0] === '+') return s;
+  const d = s.replace(/[^0-9]/g, '');
+  if (d.length < 9 || d.length > 10 || d[0] !== '0' || /[^0-9 \/-]/.test(s)) return s;
+  return d.slice(0, 3) + '/' + d.slice(3, 6) + '-' + d.slice(6);
+}
+
+function syncPhones() {
+  const server = (status.phones || []).map(c => ({ name: c.name, number: c.number }));
+  if (phonesDirty || phonesSaving || $('plist').contains(document.activeElement)) return;
+  if (JSON.stringify(server) === JSON.stringify(phones) && $('plist').childElementCount === phones.length) return;
+  phones = server;
+  renderPhones();
+}
+
+function renderPhones() {
+  $('plist').replaceChildren(...phones.map((c, i) => {
+    const preview = el('div', { class: 'fmt', text: fmtPhone(c.number) });
+    const field = (f, label, extra) => el('div', null,
+      el('label', { for: 'p' + f + i, text: label }),
+      el('input', { id: 'p' + f + i, maxlength: f === 'n' ? '30' : '20', autocomplete: 'off', ...extra,
+        oninput: e => {
+          phones[i][f === 'n' ? 'name' : 'number'] = e.target.value;
+          if (f === 'p') preview.textContent = fmtPhone(e.target.value);
+          phoneEdited(600);
+        },
+        onchange: () => savePhones(false) }));
+    const nameField = field('n', 'Name', {}), numberField = field('p', 'Number', { inputmode: 'tel' });
+    nameField.querySelector('input').value = c.name;
+    numberField.querySelector('input').value = c.number;
+    return el('div', { class: 'contact' }, nameField, numberField, preview,
+      el('div', { class: 'ctl' },
+        el('button', { type: 'button', 'aria-label': 'Move up', 'data-edge': String(i === 0), text: '▲', onclick: () => movePhone(i, -1) }),
+        el('button', { type: 'button', 'aria-label': 'Move down', 'data-edge': String(i === phones.length - 1), text: '▼', onclick: () => movePhone(i, 1) }),
+        el('button', { type: 'button', class: 'del', 'aria-label': 'Delete contact', 'data-edge': 'false', text: '✕', onclick: () => deletePhone(i) })));
+  }));
+  $('pEmpty').hidden = phones.length > 0;
+  updatePhoneButtons();
+}
+
+/** Reorder and delete wait while a save is on its way, so a request is never built from a list that is changing. */
+function updatePhoneButtons() {
+  $('plist').querySelectorAll('.ctl button').forEach(b => { b.disabled = phonesSaving || b.dataset.edge === 'true'; });
+  $('addContact').disabled = phonesSaving || phones.length >= MAX_CONTACTS;
+}
+
+function phoneEdited(delayMs) {
+  phonesDirty = true; phonesEdit++;
+  clearTimeout(phonesTimer);
+  phonesTimer = setTimeout(() => savePhones(false), delayMs);
+}
+
+const phonesComplete = () => phones.every(c => c.name.trim() && c.number.trim());
+
+async function savePhones(sayIfIncomplete) {
+  clearTimeout(phonesTimer);
+  if (!phonesDirty || phonesSaving) return;
+  if (!phonesComplete()) { if (sayIfIncomplete) toast('Enter a name and a number to save this contact'); return; }
+  const edit = phonesEdit;
+  phonesSaving = true; updatePhoneButtons();
+  try {
+    await postJson('/phones', { contacts: phones.map(c => ({ name: c.name.trim(), number: c.number.trim() })) });
+    if (edit === phonesEdit) phonesDirty = false;
+    toast('Saved');
+  } catch (e) {
+    toast(e.message, true);   // the typed text stays; the next edit or change tries again
+  } finally {
+    phonesSaving = false; updatePhoneButtons();
+  }
+  if (phonesDirty && edit !== phonesEdit) phoneEdited(600);
+}
+
+function movePhone(i, dir) {
+  const j = i + dir;
+  if (phonesSaving || j < 0 || j >= phones.length) return;
+  [phones[i], phones[j]] = [phones[j], phones[i]];
+  renderPhones();
+  phoneEdited(0);
+}
+function deletePhone(i) {
+  if (phonesSaving) return;
+  phones.splice(i, 1);
+  renderPhones();
+  phoneEdited(0);
+}
+// Leaving a contact card saves at once, and says so if the card is still missing its name or number.
+$('plist').addEventListener('focusout', e => {
+  const card = e.target.closest('.contact');
+  if (!card || !card.contains(e.relatedTarget)) savePhones(true);
+});
+$('addContact').addEventListener('click', () => {
+  if (phonesSaving || phones.length >= MAX_CONTACTS) return;
+  phones.push({ name: '', number: '' });
+  phonesDirty = true; phonesEdit++;
+  renderPhones();
+  $('pn' + (phones.length - 1)).focus();
+});
+
+// --- Clock ---
+async function setClock(btn, ms) {
+  await busy(btn, async () => {
+    try { await postJson('/clock', { epochMs: ms }); toast('TV time updated'); await refresh(); }
+    catch (e) { toast(e.message, true); }
+  });
+}
+$('syncPhone').addEventListener('click', () => setClock($('syncPhone'), Date.now()));
+$('setManual').addEventListener('click', () => {
+  const ms = zoneInputToMs($('manual').value);
+  if (Number.isNaN(ms)) return toast('Choose a date and time', true);
+  setClock($('setManual'), ms);
+});
+
+// Keep "On the TV now" current while the page is open.
+setInterval(() => { if (pin && status && !document.hidden) refresh().catch(() => {}); }, 30000);
+
+renderPending();
+if (pin) refresh().catch(e => { showGate(); if (e.message !== 'Wrong PIN') toast(e.message, true); }); else showGate();
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# Gradle and build output
+.gradle/
+.kotlin/
+build/
+*.apk
+*.aab
+
+# IDE and OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Local machine and secrets
+local.properties
+keystore.properties
+*.jks
+*.keystore
+.claude/settings.local.json
