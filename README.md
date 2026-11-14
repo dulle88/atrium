@@ -59,7 +59,7 @@ The portal is a single page served by the TV itself. It works in any phone brows
 ### Build and install
 
 ```bash
-git clone https://github.com/dulle88/lobby-app.git atrium
+git clone https://github.com/dulle88/atrium.git
 cd atrium
 ./gradlew assembleDebug
 adb install app/build/outputs/apk/debug/app-debug.apk
