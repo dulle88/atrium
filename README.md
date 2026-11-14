@@ -14,6 +14,8 @@
 
 It needs no internet, no account and no cloud. The TV broadcasts its own Wi-Fi network, and the building manager runs everything from a phone: scan the QR code on the TV, enter the PIN, post a notice.
 
+https://github.com/user-attachments/assets/f23bb091-a1f3-4a5e-a5b4-21fd894e7314
+
 <p align="center">
   <img src="docs/images/tv-day.jpg" alt="Atrium on a TV at 10:30 in the morning: clock, slideshow and important phones under a blue sky" width="100%">
 </p>
